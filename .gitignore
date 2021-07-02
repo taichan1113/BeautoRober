@@ -1,0 +1,9 @@
+/main/*
+*.ARF
+*.BKW
+*.hws
+*.tws
+
+!/main/*.c
+!/main/*.h
+!**.txt
