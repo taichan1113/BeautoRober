@@ -7,3 +7,13 @@
 !/main/*.c
 !/main/*.h
 !**.txt
+
+main/Readme.txt
+main/dbsct.c
+main/intprg.c
+main/iodefine.h
+main/resetprg.c
+main/sbrk.c
+main/sbrk.h
+main/stacksct.h
+main/typedefine.h
