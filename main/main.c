@@ -19,6 +19,9 @@ void main_init(void);
 void main(void)
 {	
 	unsigned long time;
+	unsigned long time_sys;
+	unsigned short sen1_mem;
+	float sen1Int = 0;
 	
 	main_init();
 	
@@ -43,21 +46,39 @@ void main(void)
 		}
 	}
 	
+	
+	sen1_mem = D_MOTOR_BRIGHTNESS_TARGET;
 	time = Timer_getTime();
+	time_sys = Timer_getTime();
+	
 	
 	while(1)
 	{	
 		unsigned short sen1;
-		unsigned short sen2;
+		unsigned short sen2;		
+		long sen1Diff;
 		
 		Lsen_getSensor(&sen1, &sen2);
-		Motor_runPcon(sen1);
+		sen1Diff = (sen1-sen1_mem)*1000; 
+		
+		
+		//Motor_runPcon(sen1);
+		//Motor_runPDcon(sen1, sen1Diff);
+		Motor_runPIDcon(sen1, sen1Diff, sen1Int);
+		
 		
 		if (Timer_getTime() > time + 1000)
 		{
 			Led_toggleLight(D_LED_KIND_ORANGE);
 			Led_toggleLight(D_LED_KIND_GREEN);
 			time = Timer_getTime();
+		}
+		
+		if (Timer_getTime() > time_sys + 1)
+		{
+			sen1_mem = sen1;
+			sen1Int += (sen1 - D_MOTOR_BRIGHTNESS_TARGET)/1000;
+			time_sys = Timer_getTime();
 		}
 	}	
 }

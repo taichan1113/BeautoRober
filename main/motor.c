@@ -1,12 +1,6 @@
 #include "iodefine.h"
 #include "motor.h"
 
-#define D_MOTOR_DUTY_TARGET (30)
-#define D_MOTOR_DUTY_WIDTH (25)
-#define D_MOTOR_BRIGHTNESS_TARGET (435.0)
-#define D_MOTOR_KP (0.5)
-
-
 void Motor_init(void)
 {
 	
@@ -137,6 +131,66 @@ int Motor_runPcon(unsigned short brightness)
 	
 	TZ0.GRC = TZ0.GRA * ((D_MOTOR_DUTY_TARGET - dutyDiff) / 100.0); // left
 	TZ0.GRB = TZ0.GRA * ((D_MOTOR_DUTY_TARGET + dutyDiff) / 100.0); // right
+	
+	TZ.TSTR.BIT.STR0 = 1;
+	
+	return 0;
+	
+}
+
+int Motor_runPDcon(unsigned short brightness, long brightnessDiff)
+{
+	long dutyDiff;
+	
+	IO.PDR3.BIT.B0 = 1;
+	IO.PDR3.BIT.B1 = 0;
+	IO.PDR3.BIT.B2 = 1;
+	IO.PDR3.BIT.B3 = 0;
+	
+	dutyDiff = -D_MOTOR_KP * (brightness - D_MOTOR_BRIGHTNESS_TARGET) + D_MOTOR_KD * brightnessDiff;
+	
+	if (dutyDiff > D_MOTOR_DUTY_WIDTH)
+	{
+		dutyDiff = D_MOTOR_DUTY_WIDTH;
+	}
+	else if (dutyDiff < -D_MOTOR_DUTY_WIDTH)
+	{
+		dutyDiff = -D_MOTOR_DUTY_WIDTH;
+	}
+	
+	
+	TZ0.GRC = TZ0.GRA * ((D_MOTOR_DUTY_TARGET - dutyDiff) / 100.0); // left
+	TZ0.GRB = TZ0.GRA * ((D_MOTOR_DUTY_TARGET + dutyDiff) / 100.0); // right
+	
+	TZ.TSTR.BIT.STR0 = 1;
+	
+	return 0;
+	
+}
+
+int Motor_runPIDcon(unsigned short brightness, long brightnessDiff, float brightInt)
+{
+	long dutyDiff;
+	
+	IO.PDR3.BIT.B0 = 1;
+	IO.PDR3.BIT.B1 = 0;
+	IO.PDR3.BIT.B2 = 1;
+	IO.PDR3.BIT.B3 = 0;
+	
+	dutyDiff = D_MOTOR_KP * (brightness - D_MOTOR_BRIGHTNESS_TARGET) - D_MOTOR_KD * brightnessDiff + D_MOTOR_KI * brightnessDiff;
+	
+	if (dutyDiff > D_MOTOR_DUTY_WIDTH)
+	{
+		dutyDiff = D_MOTOR_DUTY_WIDTH;
+	}
+	else if (dutyDiff < -D_MOTOR_DUTY_WIDTH)
+	{
+		dutyDiff = -D_MOTOR_DUTY_WIDTH;
+	}
+	
+	
+	TZ0.GRC = TZ0.GRA * ((D_MOTOR_DUTY_TARGET + dutyDiff) / 100.0); // left
+	TZ0.GRB = TZ0.GRA * ((D_MOTOR_DUTY_TARGET - dutyDiff) / 100.0); // right
 	
 	TZ.TSTR.BIT.STR0 = 1;
 	
